@@ -17,15 +17,38 @@
 
   const recognition = new SpeechRecognition();
   recognition.interimResults = true;
+  recognition.lang = 'en-US';
 
   let p = document.createElement('p');
   const words = document.querySelector('.words');
-  words.appendChild('p');
+  words.appendChild(p);
 
   // take recognition and add an event listener
   recognition.addEventListener('result', e => {
-    console.log(e)
-  })
+    // console.log(e.results)
+    const transcript = Array.from(e.results)
+    // map the first result
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('')
+
+        // attach all this output to a p tag for the UI
+        p.textContent = transcript;
+        // this, however overrwrites what is in the p tag whenever you start talking again after stopping
+        // we want all the transcript to display without overwriting
+        if(e.results[0].isFinal) {
+            p = document.createElement('p');
+            words.appendChild(p);
+        }
+
+        // You can add some logic here to run a function if the transcript includes certain keywords
+        if(transcript.includes('unicorn')) {
+            console.log("Unicorns are the best!")
+        }
+  });
+
+//   listen for end of speech
+  recognition.addEventListener('end', recognition.start);
 
   // after prompting user
   recognition.start();
